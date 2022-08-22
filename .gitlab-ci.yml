@@ -1,0 +1,26 @@
+.install_pkgs:
+  image: registry.web.boeing.com/container/boeing-images/stack/rhel7-python36:latest
+  variables:
+    SRES_USER: $ARTIFACTORY_USERNAME
+    SRES_PASS: $ARTIFACTORY_API_TOKEN
+  before_script:
+      - echo "Installing needed python packages from conda"
+      - export PIP_INDEX_URL="https://$ARTIFACTORY_USERNAME:$ARTIFACTORY_API_TOKEN@sres.web.boeing.com/artifactory/api/pypi/pypi-remote/simple"
+      - conda create -n flaskApp python
+      - conda env list
+      - activate flaskApp
+      - conda install flask
+      - pip install --upgrade pip --index-url=https://$ARTIFACTORY_USERNAME:$ARTIFACTORY_API_TOKEN@sres.web.boeing.com/artifactory/api/pypi/pypi-remote/simple
+      - pip install -r requirements.txt
+      - python -V
+      - pip list
+
+stages:
+  - build
+
+
+build:
+  stage: build
+  extends: .install_pkgs
+  script:
+    - echo "build phase"
